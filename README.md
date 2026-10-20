@@ -25,3 +25,7 @@ I write SQL only for trusted rules. Evidence: I proved duplicates are timestamp-
 ## RFM segments
 
 Snapshot = last invoice + 1 day (2011-12-10). R and M use quintiles; F uses fixed bins (1, 2-3, 4-6, 7-12, 13+ invoices). Four groups cover the R x F grid: Champions 18.6%, Loyal 41.4%, At Risk 7.7%, Lost 32.2%. Monetary prioritises within each segment.
+
+## Product categories (notebook/02_Feature_Engineering.ipynb)
+
+The dataset ships no category column, so I build one. I reduce the 1,067,371 rows to 4,950 unique products and classify each into 14 main and 54 sub categories defined in `data/product_taxonomy.json`. I classify in two passes. First, keyword rules compiled from the taxonomy file, first match wins: 4,448 products (89.9%), with exact StockCode matches catching the 31 non-product rows. Second, I send the 502 products the rules miss to a local qwen2.5:3b model through Ollama, one product per request, because batching made the model copy its first answer down the batch. I keep category separate from theme: a Christmas mug stays Kitchen & Dining. The output is `data/processed/product_categories.parquet` with `StockCode`, `main_category` and `sub_category`, one row per StockCode. I record the matched rule for every assignment, so I can audit each category.
