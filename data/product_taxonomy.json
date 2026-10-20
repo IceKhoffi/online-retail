@@ -1,0 +1,400 @@
+{
+  "_meta": {
+    "note": "Product taxonomy for the Online Retail II giftware catalog. 'categories' is an ORDERED ARRAY: order = classification order, first match wins, and a category may appear more than once (e.g. Home Decor: specific rules early, generic catch-alls last). Each subcategory has a 'description' (used to build the LLM prompt), optional 'rules' (whole-word keywords, compiled to tolerate plurals and space/hyphen variants) and, for Non-Product only, optional 'exact_codes' / 'exact_descriptions' matched before any rules. Edit this file to re-tune classification; nothing is hardcoded in the notebook. Themes/colours (CHRISTMAS, HEART, RED) are deliberately NOT categories.",
+    "version": "2.0",
+    "source": "Keywords adapted from taxonomy_rules.py draft + extended from unmatched-description analysis of the 4,950 unique products in data/processed/retail_raw_combined.parquet"
+  },
+  "categories": [
+    {
+      "name": "Non-Product",
+      "description": "Rows that are not merchandise: postage and carriage, discounts, manual adjustments, bank charges, samples, damages and stock write-offs.",
+      "subcategories": [
+        {
+          "name": "Postage & Fees",
+          "description": "Postage, dotcom postage, carriage, next day carriage, packing charges, bank charges, commissions and Amazon fees.",
+          "rules": ["POSTAGE", "DOTCOM POSTAGE", "CARRIAGE", "NEXT DAY CARRIAGE", "BANK CHARGES", "AMAZON FEE", "COMMISSION", "PACKING CHARGE"],
+          "exact_codes": ["POST", "DOT", "C2"],
+          "exact_descriptions": ["POSTAGE", "DOTCOM POSTAGE", "CARRIAGE", "NEXT DAY CARRIAGE", "PACKING CHARGE", "BANK CHARGES"]
+        },
+        {
+          "name": "Adjustments & Write-offs",
+          "description": "Discounts, manual entries, stock adjustments, bad debt, damaged or lost stock and giveaways.",
+          "rules": ["DISCOUNT", "MANUAL", "ADJUST", "BAD DEBT", "DAMAGED", "DAMAGE", "THROWN AWAY", "MOULDY", "SMASHED", "LOST", "MISSING", "WRONG", "GIVEN AWAY"],
+          "exact_codes": ["D", "M", "m", "B", "CRUK"],
+          "exact_descriptions": ["DISCOUNT", "MANUAL", "ADJUSTMENT", "ADJUST BAD DEBT", "DAMAGES", "LOST", "THROWN AWAY-CAN'T SELL", "HIGH RESOLUTION IMAGE", "?", "GIVEN AWAY", "CRUK COMMISSION", "REX USE"]
+        },
+        {
+          "name": "Samples",
+          "description": "Product samples distributed for evaluation or promotion.",
+          "rules": ["SAMPLE"],
+          "exact_codes": ["S"],
+          "exact_descriptions": ["SAMPLES"]
+        }
+      ]
+    },
+    {
+      "name": "Home Decor",
+      "description": "Decorative items for the home: candles and holders, lanterns, ornaments, lighting, clocks, frames, mirrors, wall art, flowers.",
+      "subcategories": [
+        {
+          "name": "Candle Holders",
+          "description": "T-light holders, candle holders, candlesticks, candelabra, votives, candle plates, pots, bowls and bases.",
+          "rules": ["T-?LIGHT", "TEA ?LIGHT", "CANDLE ?HOLDER", "CANDLE ?STAND", "CANDLESTICK", "CANDLE ?PLATE", "CANDLE ?POT", "CANDLE ?BOWL", "CANDLEHOLDER", "VOTIVE", "CANDELABRA", "METAL BASE FOR CANDLES"]
+        },
+        {
+          "name": "Lanterns",
+          "description": "Lanterns and hurricane lamps, metal or glass, decorative or functional.",
+          "rules": ["LANTERN", "HURRICANE"]
+        }
+      ]
+    },
+    {
+      "name": "Stationery & Paper",
+      "description": "Paper goods, writing, wrapping and office supplies.",
+      "subcategories": [
+        {
+          "name": "Gift Wrap & Tags",
+          "description": "Wrapping paper, ribbons, gift tags, tissue paper and paper gift bags.",
+          "rules": ["GIFT ?WRAP", "WRAPPING PAPER", "GIFT ?TAG", "GIFT ?BAG", "PAPER BAG", "RIBBON", "TISSUE PAPER", "WRAP"]
+        }
+      ]
+    },
+    {
+      "name": "Stationery & Paper",
+      "description": "Paper goods, writing, wrapping and office supplies.",
+      "subcategories": [
+        {
+          "name": "Pens, Pencils & Stickers",
+          "description": "Pens, pencils, sharpeners, crayons, markers, stamps, stickers, chalk and general stationery. Placed before Toys so e.g. ROBOT PENCIL SHARPNER stays stationery.",
+                    "rules": ["PENCIL SHARPENER", "SHARPNER", "SHARPENER", "PENCIL", "TAPE MEASURE", "MEASURING TAPE", "TAPE", "HOLE PUNCH", "STAPLER", "CRAYON", "ERASER", "RULER", "STAMP", "STICKER", "CHALK", "STATIONERY", "PEN SET", "FOUNTAIN PEN", "PEN"]
+        }
+      ]
+    },
+    {
+      "name": "Toys & Games",
+      "description": "Toys, games and playthings for children and adults.",
+      "subcategories": [
+        {
+          "name": "Games & Puzzles",
+          "description": "Board games, puzzles, playing cards, jigsaws, chess, dominoes, skittles, dartboards, traditional games.",
+          "rules": ["GAME", "PUZZLE", "DOMINO", "PLAYING CARD", "JIGSAW", "CHESS", "SKITTLE", "DARTBOARD", "SPINNING TOP", "PICK UP STICKS", "NAUGHTS", "JACOBS LADDER"]
+        },
+        {
+          "name": "Toys & Dolls",
+          "description": "Toys, dolls, teddies, plush figures, robots, gliders, puppets and play novelties.",
+          "rules": ["TOY", "DOLL", "TEDDY", "PLUSH", "ROBOT", "GLIDER", "INFLATABLE", "BUBBLES?", "YO-?YO", "PUPPET", "RATTLE", "SPACEBOY", "SKIPPING ROPE", "BUBBLE GUM"]
+        }
+      ]
+    },
+    {
+      "name": "Party & Celebrations",
+      "description": "Everything for parties and celebrations: bunting, balloons, napkins, confetti, fancy dress.",
+      "subcategories": [
+        {
+          "name": "Bunting & Garlands",
+          "description": "Bunting, garlands, paper chains and streamers.",
+          "rules": ["BUNTING", "GARLAND", "PAPER CHAIN", "STREAMER"]
+        },
+        {
+          "name": "Party Supplies",
+          "description": "Party decorations and tableware: balloons, napkins, doilies, paper cups and plates, confetti, banners, parasols, pin wheels, birthday and cake candles.",
+          "rules": ["PARTY", "BALLOON", "NAPKIN", "DOILY", "PAPER CUP", "PAPER PLATE", "CONFETTI", "BIRTHDAY CANDLE", "CAKE CANDLE", "PARASOL", "BANNER", "PIN ?WHEEL", "FANCY DRESS", "TIARA", "LEI", "FANS?"]
+        }
+      ]
+    },
+    {
+      "name": "Stationery & Paper",
+      "description": "Paper goods, writing, wrapping and office supplies.",
+      "subcategories": [
+        {
+          "name": "Cards & Postcards",
+          "description": "Greeting cards, Christmas cards, postcards, mini cards and envelopes.",
+          "rules": ["CARD", "POSTCARD", "GREETING", "ENVELOPE", "NOTELET"]
+        },
+        {
+          "name": "Notebooks & Books",
+          "description": "Notebooks, journals, diaries, address books, scrapbooks, notepads, calendars and bookmarks.",
+          "rules": ["NOTEBOOK", "JOURNAL", "DIARY", "ADDRESS BOOK", "BOOK", "SCRAPBOOK", "NOTE ?PAD", "MEMO ?PAD", "TO ?DO ?LIST", "CALENDAR", "BOOKMARK"]
+        },
+        {
+          "name": "Tissues & Doilies",
+          "description": "Pocket and facial tissue packs and paper doilies sold as paper goods.",
+          "rules": ["TISSUE", "HANDKERCHIEF"]
+        }
+      ]
+    },
+    {
+      "name": "Home Comfort & Textiles",
+      "description": "Soft fabric goods and items for warmth and comfort.",
+      "subcategories": [
+        {
+          "name": "Hot Water Bottles & Warmers",
+          "description": "Hot water bottles, hotties, hand and pocket warmers, egg and teapot warmers.",
+          "rules": ["HOT WATER BOTTLE", "HOTTIE", "HOT WATER", "HAND WARMER", "WARMER"]
+        },
+        {
+          "name": "Cushions & Covers",
+          "description": "Cushions, pillows, bolsters and cushion covers (incl. C/COVER abbreviations).",
+          "rules": ["CUSHION", "PILLOW", "BOLSTER", "C/COVER"],
+          "exact_descriptions": ["PADS TO MATCH ALL CUSHIONS"]
+        },
+        {
+          "name": "Blankets, Throws & Rugs",
+          "description": "Blankets, throws, quilts, rugs and door mats.",
+          "rules": ["BLANKET", "THROW", "QUILT", "RUG", "DOORMAT", "DOOR MAT"]
+        },
+        {
+          "name": "Towels & Flannels",
+          "description": "Hand towels, bath towels, tea towels sold as textiles and flannels.",
+          "rules": ["TOWEL", "FLANNEL"]
+        },
+        {
+          "name": "Furniture & Seating",
+          "description": "Small furniture: stools, chairs, deckchairs and hammocks.",
+          "rules": ["STOOL", "CHAIR", "HAMMOCK", "BENCH", "TABLE"]
+        }
+      ]
+    },
+    {
+      "name": "Bags & Accessories",
+      "description": "Bags, purses, wearables and small carried accessories.",
+      "subcategories": [
+        {
+          "name": "Keyrings & Bag Charms",
+          "description": "Key rings, key fobs, luggage tags, bag charms and phone charms.",
+          "rules": ["KEY ?RING", "KEY FOB", "KEY-?CHAIN", "LUGGAGE TAG", "BAG CHARM", "PHONE CHARM"]
+        },
+        {
+          "name": "Purses & Wallets",
+          "description": "Purses, wallets, coin purses, passport covers.",
+          "rules": ["PURSE", "WALLET", "PASSPORT"]
+        },
+        {
+          "name": "Hair Accessories",
+          "description": "Hair clips, bands, slides, combs, grips, headbands, scrunchies.",
+          "rules": ["HAIR ?CLIP", "HAIR ?BAND", "HAIR ?SLIDE", "HAIR ?COMB", "HAIR ?GRIP", "ALICE BAND", "SCRUNCHIE", "HEADBAND", "HAIRCLIP"]
+        },
+        {
+          "name": "Umbrellas",
+          "description": "Umbrellas of any size.",
+          "rules": ["UMBRELLA"]
+        },
+        {
+          "name": "Clothing & Wearables",
+          "description": "Scarves, gloves, hats, socks, slippers, t-shirts, ponchos, ear muffs, sunglasses and wellies.",
+          "rules": ["SCARF", "GLOVE", "HAT", "SOCK", "SLIPPER", "T-?SHIRT", "SUNGLASSES", "PONCHO", "EAR ?MUFF", "WELLY", "HEADPHONES", "SOMBRERO"]
+        },
+        {
+          "name": "Bags",
+          "description": "Generic bags: jumbo and shopping bags, totes, satchels, backpacks, handbags, wash and cosmetic bags.",
+          "rules": ["JUMBO BAG", "LUNCH BAG", "SHOPPER", "SHOPPING BAG", "TOTE", "SATCHEL", "BACKPACK", "RUCKSACK", "HANDBAG", "WASH ?BAG", "COSMETIC BAG", "MAKE-?UP BAG", "SPONGE BAG", "SHOULDER BAG", "BAG"]
+        }
+      ]
+    },
+    {
+      "name": "Personal Care & Bath",
+      "description": "Bath, body and toiletry items.",
+      "subcategories": [
+        {
+          "name": "Bath & Body",
+          "description": "Soap, bath and shower items, sponges, loofahs, hand cream, lip balm, toothbrushes, manicure sets.",
+          "rules": ["SOAP", "BATH", "BATHROOM", "SHOWER", "TOILETTE", "BODY", "HAND ?CREAM", "LIP ?BALM", "SPONGE", "LOOFAH", "FACE MASK", "FACE CLOTH", "TOOTHBRUSH", "MANICURE", "PUMICE"]
+        },
+        {
+          "name": "Cosmetics & Toiletries",
+          "description": "Lip gloss, compacts, cosmetics bags contents and similar toiletry items.",
+          "rules": ["LIP GLOSS", "COMPACT MIRROR", "MAKE ?UP", "COSMETIC"]
+        }
+      ]
+    },
+    {
+      "name": "Storage & Organization",
+      "description": "Items for storing or organizing things: hooks, baskets, boxes, racks.",
+      "subcategories": [
+        {
+          "name": "Hooks & Hangers",
+          "description": "Wall hooks, coat hooks and racks, coathangers, key hooks, suction hooks, key cabinets and holders.",
+          "rules": ["HOOK", "HANGER", "COAT RACK", "COATHOOK", "KEY CABINET", "KEY HOLDER", "KEY SAFE", "PEG"]
+        }
+      ]
+    },
+    {
+      "name": "Kitchen & Dining",
+      "description": "Items for eating, drinking, preparing and storing food. A mug with a Christmas print still lives here.",
+      "subcategories": [
+        {
+          "name": "Cakes & Baking",
+          "description": "Cake stands, cake cases, baking tins, cookie cutters, rolling pins, muffin and cupcake items.",
+          "rules": ["CAKE ?STAND", "CAKESTAND", "CAKE CASE", "CUPCAKE", "BAKING", "COOKIE CUTTER", "BISCUIT", "ROLLING PIN", "CAKE TIN", "MUFFIN", "FAIRY CAKE", "CAKE", "BAKE", "DOUGHNUT"]
+        },
+        {
+          "name": "Mugs & Cups",
+          "description": "Mugs, cups, teacups, coffee cups, saucers and egg cups.",
+          "rules": ["MUG", "TEACUP", "COFFEE CUP", "EGG CUP", "CUP", "SAUCER"]
+        },
+        {
+          "name": "Kitchen Storage & Lunch",
+          "description": "Storage jars, canisters, bread bins, caddies, spice racks, cookie jars, lunch boxes and picnic items.",
+          "rules": ["JAR", "CANISTER", "CANNISTER", "BREAD BIN", "CADDY", "SPICE", "COOKIE JAR", "LUNCH ?BOX", "LUNCH ?TIN", "PICNIC", "HONEYPOT"]
+        },
+        {
+          "name": "Kitchen Textiles",
+          "description": "Aprons, oven gloves, pot holders, placemats, tablecloths and tea cosies.",
+          "rules": ["APRON", "TEA ?TOWEL", "OVEN ?GLOVE", "POT ?HOLDER", "PLACEMAT", "PLACE MAT", "TABLE ?CLOTH", "TEA COSY", "TEA ?COSY"]
+        },
+        {
+          "name": "Cutlery & Utensils",
+          "description": "Knives, forks, spoons, cutlery sets, whisks, ladles, spatulas, tongs, scoops, graters, corkscrews.",
+          "rules": ["KNIFE", "KNIVES", "FORK", "SPOON", "TEASPOON", "CUTLERY", "WHISK", "LADLE", "SPATULA", "TONGS", "SCOOP", "CORKSCREW", "NUTCRACKER", "UTENSIL", "GRATER", "PEELER"]
+        },
+        {
+          "name": "Cookware & Pans",
+          "description": "Frying pans, saucepans, griddles, kettles, toasters and other cookware.",
+          "rules": ["FRYING ?PAN", "SAUCE ?PAN", "PAN", "WAFFLE", "GRIDDLE", "KETTLE", "TOASTER"]
+        },
+        {
+          "name": "Plates & Bowls",
+          "description": "Plates, bowls, dishes, platters, trays and serving items.",
+          "rules": ["PLATE", "BOWL", "DISH", "PLATTER", "TRAY", "SERVING", "CHARGER"]
+        },
+        {
+          "name": "Drinkware & Teapots",
+          "description": "Teapots, jugs, tumblers, goblets, wine and tea glasses, flasks, coasters and bottles for drinks.",
+          "rules": ["TUMBLER", "TEAPOT", "TEA ?POT", "JUG", "GOBLET", "FLASK", "CARAFE", "COASTER", "STRAW", "WINE GLASS", "CHAMPAGNE GLASS", "TEA GLASS", "BOTTLE"]
+        }
+      ]
+    },
+    {
+      "name": "Storage & Organization",
+      "description": "Items for storing or organizing things: hooks, baskets, boxes, racks.",
+      "subcategories": [
+        {
+          "name": "Baskets & Crates",
+          "description": "Baskets, crates, hampers, buckets and bins, incl. wicker, rattan and seagrass.",
+          "rules": ["BASKET", "CRATE", "HAMPER", "BUCKET", "BIN", "WICKER", "RATTAN", "SEAGRASS", "RAFFIA"]
+        },
+        {
+          "name": "Boxes & Tins",
+          "description": "Storage boxes, trinket boxes, money boxes, tins, chests, trunks, cases, drawers and organizers.",
+          "rules": ["BOX", "TIN", "TRUNK", "CHEST", "CASE", "ORGANI[SZ]ER", "STORAGE", "SUITCASE", "DRAWER"]
+        },
+        {
+          "name": "Shelves & Racks",
+          "description": "Shelves, shelving units, racks, stands, cabinets, wardrobes and towel rails.",
+          "rules": ["SHELF", "SHELVES", "RACK", "STAND", "CABINET", "WARDROBE", "TOWEL RAIL", "SHELVING"]
+        }
+      ]
+    },
+    {
+      "name": "Garden & Outdoor",
+      "description": "Items intended for gardens and outdoor spaces.",
+      "subcategories": [
+        {
+          "name": "Planters & Plant Care",
+          "description": "Flower pots, planters, plant cages and plant care.",
+          "rules": ["PLANTER", "PLANT POT", "FLOWER POT", "PLANT", "SEED", "PLANT CAGE"]
+        },
+        {
+          "name": "Garden Accessories",
+          "description": "Garden decorations, bird feeders and houses, tools, secateurs, wellies, watering cans, BBQ items.",
+          "rules": ["GARDEN", "BIRD ?FEEDER", "BIRDFEEDER", "BIRD ?HOUSE", "BIRD TABLE", "TROWEL", "SECATEUR", "SHOVEL", "WELLY", "DECKCHAIR", "BBQ", "TWINE", "WATERING"]
+        }
+      ]
+    },
+    {
+      "name": "Craft & DIY",
+      "description": "Craft, sewing and DIY supplies and hardware.",
+      "subcategories": [
+        {
+          "name": "Hardware & Fixings",
+          "description": "Knobs, handles, hinges, screws and other small hardware.",
+          "rules": ["DRAWER KNOB", "DOOR ?HANDLE", "KNOB", "HANDLE", "HINGE", "SCREW"]
+        },
+        {
+          "name": "Craft & Sewing Supplies",
+          "description": "Sewing and knitting kits, needles, thread, buttons, fabric, yarn, beads, felt, glue, paint, stencils, scissors, tiles and patches.",
+          "rules": ["CRAFT", "SEWING", "NEEDLE", "THREAD", "BUTTON", "FABRIC", "WOOL", "YARN", "BEAD", "FELT", "GLUE", "PAINT", "STENCIL", "KIT", "DIY", "CROCHET", "KNITTING", "SCISSORS?", "PATCH", "TILE", "POM ?POM", "BOBBLE", "EMBROIDER"]
+        }
+      ]
+    },
+    {
+      "name": "Bags & Accessories",
+      "description": "Bags, purses, wearables and small carried accessories.",
+      "subcategories": [
+        {
+          "name": "Jewellery",
+          "description": "Necklaces, bracelets, earrings, bangles, brooches, pendants, rings, chokers and jewellery sets.",
+          "rules": ["NECKLACE", "BRACELET", "BRACLET", "EARRING", "BANGLE", "BROOCH", "PENDANT", "CHOKER", "LARIAT", "RING", "JEWELL?ERY", "JEWEL", "DIAMANTE"]
+        }
+      ]
+    },
+    {
+      "name": "Gifts & Novelty",
+      "description": "Novelty gifts, keepsakes and gift sets.",
+      "subcategories": [
+        {
+          "name": "Novelty & Gift Sets",
+          "description": "Money boxes, snow globes, magnets, trinkets, souvenirs, badges, keepsakes, charms and gift sets.",
+          "rules": ["MONEY ?BOX", "NOVELTY", "GIFT ?SET", "MAGNET", "SNOW ?GLOBE", "TRINKET", "SOUVENIR", "BADGE", "KEEPSAKE", "CHARM", "SNOW ?DOME", "PAPERWEIGHT", "P'?WEIGHT"]
+        }
+      ]
+    },
+    {
+      "name": "Home Decor",
+      "description": "Decorative items for the home: candles and holders, lanterns, ornaments, lighting, clocks, frames, mirrors, wall art, flowers.",
+      "subcategories": [
+        {
+          "name": "Home Fragrance & Candles",
+          "description": "Candles themselves, incense, oil burners, pot-pourri, scented and diffuser items.",
+          "rules": ["CANDLE", "INCENSE", "OIL BURNER", "POT-?POURRI", "FRAGRANCE", "SCENTED", "DIFFUSER"]
+        },
+        {
+          "name": "Lighting",
+          "description": "Fairy and string lights, lamps, lampshades, night lights, bulbs and LED decorations.",
+          "rules": ["NIGHT ?LIGHT", "LAMP", "LAMP ?SHADE", "LIGHT ?SHADE", "FAIRY ?LIGHT", "LIGHTS", "LIGHT ?CHAIN", "BULB", "LED"]
+        },
+        {
+          "name": "Clocks",
+          "description": "Wall clocks, alarm clocks and table clocks.",
+          "rules": ["CLOCK", "ALARM"]
+        },
+        {
+          "name": "Frames & Mirrors",
+          "description": "Photo frames, photo albums, mirrors and photo clips.",
+          "rules": ["FRAME", "MIRROR", "PHOTO ALBUM", "ALBUM", "PHOTO"]
+        },
+        {
+          "name": "Wall Art & Signs",
+          "description": "Metal signs, plaques, wall art, wall stickers, decals, chalkboards, posters, canvas pictures and prints.",
+          "rules": ["SIGN", "PLAQUE", "WALL ART", "WALL STICKER", "DECAL", "CHALKBOARD", "BLACKBOARD", "NOTICE BOARD", "POSTER", "PICTURE", "CANVAS", "PRINT", "WALL PLAQUE"]
+        },
+        {
+          "name": "Vases & Artificial Flowers",
+          "description": "Vases, artificial flowers, bouquets and wreaths.",
+          "rules": ["VASE", "ARTIFICIAL", "BOUQUET", "WREATH", "FLOWER"]
+        },
+        {
+          "name": "Doorstops",
+          "description": "Decorative and functional doorstops.",
+          "rules": ["DOOR ?STOP"]
+        },
+        {
+          "name": "Ornaments & Decorations",
+          "description": "Generic catch-all for decorations: ornaments, figures, baubles, seasonal figures (Santa, snowman, reindeer), garlands, hanging decorations, mobiles and wind chimes.",
+          "rules": ["ORNAMENT", "DECORATION", "DEC", "FIGURINE", "FIGURE", "STATUE", "BAUBLE", "ANGEL", "SNOWMAN", "REINDEER", "SANTA", "MOBILE", "WIND ?CHIME", "SNOWFLAKE", "ADVENT", "NATIVITY", "STOCKING", "WINDMILL", "TREE", "BIRD", "BUTTERFLY", "OWL", "HANGING", "GLOW IN DARK", "CANOPY", "CURTAIN"]
+        }
+      ]
+    },
+    {
+      "name": "Other",
+      "description": "Real products that fit nowhere else in the taxonomy. If many products land here, extend the taxonomy instead.",
+      "subcategories": [
+        {
+          "name": "Unclassified",
+          "description": "Unclassifiable product; flagged for review.",
+          "rules": []
+        }
+      ]
+    }
+  ]
+}
