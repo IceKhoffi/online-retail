@@ -29,3 +29,23 @@ Snapshot = last invoice + 1 day (2011-12-10). R and M use quintiles; F uses fixe
 ## Product categories (notebook/02_Feature_Engineering.ipynb)
 
 The dataset ships no category column, so I build one. I reduce the 1,067,371 rows to 4,950 unique products and classify each into 14 main and 54 sub categories defined in `data/product_taxonomy.json`. I classify in two passes. First, keyword rules compiled from the taxonomy file, first match wins: 4,448 products (89.9%), with exact StockCode matches catching the 31 non-product rows. Second, I send the 502 products the rules miss to a local qwen2.5:3b model through Ollama, one product per request, because batching made the model copy its first answer down the batch. I keep category separate from theme: a Christmas mug stays Kitchen & Dining. The output is `data/processed/product_categories.parquet` with `StockCode`, `main_category` and `sub_category`, one row per StockCode. I record the matched rule for every assignment, so I can audit each category.
+
+## SQL layer (`sql/`)
+
+I wrote the SQL after the notebooks set the rules. `01_EDA` proved the five findings; `02_Feature_Engineering` classified the 4,950 products into 14 main and 54 sub categories; the queries then turn those rules into a database, nothing more.
+
+`sql/01_fact_marts.sql` builds the raw view over the combined parquet, materialises `retail_fact` with the four validated flags (cancellation, guest, product, duplicate) plus `Revenue`, then aggregates the marts: monthly sales by country, monthly KPIs with the value-based return rate, product totals, and the RFM scores with their four segments. `sql/02_category_marts.sql` loads `dim_product` from the notebook's category file, rebuilds `mart_product` with categories, and adds `mart_category_monthly`. Both scripts end in checks that must match the notebook anchors; `retail.duckdb` holds the result read-only for the dashboard.
+
+## Sales dashboard (`dashboard/`)
+
+I owned this dashboard's plan from the start. The idea follows the data: one pipeline runs from the raw xlsx export, through the combined raw layer, into a fact table with validated flags in SQL, then the category layer, and ends in a dashboard anyone can read. I did not ask for "a dashboard"; I brought the pipeline, the palette and the rules.
+
+Before any code I fixed the plan: Node with a read-only DuckDB API, Vite with React and Recharts, plain JavaScript, one query file, bound parameters, no UI kit. My listed skills (frontend-design, design-taste-frontend, impeccable, emil-design-eng) keep the screen on app rules.
+
+The contract holds: money shows as gross, returns and net, every panel states which filters reach it, and `scripts/verify.js` ties every number to the layers below.
+
+Run: `cd dashboard && npm run dev` (API on 8787, app on 5173).
+
+- Layers in order: the two xlsx sheets combine into a raw layer; SQL builds retail_fact with dedup, cancellation and guest flags; marts aggregate monthly KPIs, countries, products and RFM; dim_product adds main and sub categories.
+- The API owns the database: one read-only DuckDB connection, nine JSON routes, one function per panel in `queries.js`, filters bound as parameters, memory capped at 512MB so small machines survive it.
+- The web app stays simple: one filter object in `App.jsx`, one `useApi` hook with a 200ms debounce and a sequence guard, six panels that load, fail and empty on their own.

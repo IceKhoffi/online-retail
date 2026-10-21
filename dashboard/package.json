@@ -1,0 +1,24 @@
+{
+  "name": "dashboard",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "concurrently -n api,web -c teal,yellow \"node server/index.js\" \"vite --config web/vite.config.js\"",
+    "build": "vite build --config web/vite.config.js",
+    "start": "node server/index.js",
+    "verify": "node scripts/verify.js"
+  },
+  "dependencies": {
+    "@duckdb/node-api": "^1.5.6-r.2",
+    "@vitejs/plugin-react": "^6.1.2",
+    "concurrently": "^10.0.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "recharts": "^3.10.1",
+    "vite": "^8.3.5"
+  },
+  "type": "module",
+  "devDependencies": {
+    "playwright-core": "^1.64.1"
+  }
+}
